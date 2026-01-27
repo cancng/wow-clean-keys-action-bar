@@ -48,37 +48,45 @@ local function CreateSettingsPanel()
     fontSizeValue:SetPoint("LEFT", fontSizeLabel, "RIGHT", 8, 0)
     fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
     
-    -- Font Size Slider
-    local fontSizeSlider = CreateFrame("Slider", "CleanKeysFontSizeSlider", panel, "OptionsSliderTemplate")
-    fontSizeSlider:SetPoint("TOPLEFT", fontSizeLabel, "BOTTOMLEFT", 0, -10)
-    fontSizeSlider:SetWidth(200)
-    fontSizeSlider:SetMinMaxValues(6, 24)
-    fontSizeSlider:SetValueStep(1)
-    fontSizeSlider:SetObeyStepOnDrag(true)
-    fontSizeSlider:SetValue(CleanKeysActionBarDB.fontSize)
-    fontSizeSlider.Low:SetText("6")
-    fontSizeSlider.High:SetText("24")
-    fontSizeSlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value + 0.5)
-        CleanKeysActionBarDB.fontSize = value
-        fontSizeValue:SetText(value)
-        addon:UpdateAllActionButtons()
+    -- Decrease button (-)
+    local decreaseBtn = CreateFrame("Button", "CleanKeysFontDecrease", panel, "UIPanelButtonTemplate")
+    decreaseBtn:SetPoint("TOPLEFT", fontSizeLabel, "BOTTOMLEFT", 0, -10)
+    decreaseBtn:SetSize(32, 26)
+    decreaseBtn:SetNormalFontObject("GameFontNormalLarge")
+    decreaseBtn:SetText("-")
+    decreaseBtn:SetScript("OnClick", function()
+        local currentValue = CleanKeysActionBarDB.fontSize
+        if currentValue > 6 then
+            CleanKeysActionBarDB.fontSize = currentValue - 1
+            fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
+            addon:UpdateAllActionButtons()
+        end
+    end)
+    
+    -- Increase button (+)
+    local increaseBtn = CreateFrame("Button", "CleanKeysFontIncrease", panel, "UIPanelButtonTemplate")
+    increaseBtn:SetPoint("LEFT", decreaseBtn, "RIGHT", 5, 0)
+    increaseBtn:SetSize(32, 26)
+    increaseBtn:SetNormalFontObject("GameFontNormalLarge")
+    increaseBtn:SetText("+")
+    increaseBtn:SetScript("OnClick", function()
+        local currentValue = CleanKeysActionBarDB.fontSize
+        if currentValue < 24 then
+            CleanKeysActionBarDB.fontSize = currentValue + 1
+            fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
+            addon:UpdateAllActionButtons()
+        end
     end)
     
     -- Preview section
     local previewLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    previewLabel:SetPoint("TOPLEFT", fontSizeSlider, "BOTTOMLEFT", 0, -30)
+    previewLabel:SetPoint("TOPLEFT", decreaseBtn, "BOTTOMLEFT", 0, -30)
     previewLabel:SetText("Preview:")
     
     local previewText = panel:CreateFontString(nil, "ARTWORK")
     previewText:SetPoint("LEFT", previewLabel, "RIGHT", 10, 0)
     previewText:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
     previewText:SetText("CM4  SA5  SF9  CX")
-    
-    -- Update preview when slider changes
-    fontSizeSlider:HookScript("OnValueChanged", function(self, value)
-        previewText:SetFont(addon.HOTKEY_FONT, math.floor(value + 0.5), addon.HOTKEY_FONT_FLAGS)
-    end)
     
     -- Key conversion examples
     local examplesLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -103,7 +111,6 @@ local function CreateSettingsPanel()
     -- Refresh on show
     panel:SetScript("OnShow", function()
         enableCheck:SetChecked(CleanKeysActionBarDB.enabled)
-        fontSizeSlider:SetValue(CleanKeysActionBarDB.fontSize)
         fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
         previewText:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
     end)
