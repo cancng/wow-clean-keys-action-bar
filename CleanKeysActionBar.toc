@@ -1,0 +1,10 @@
+## Interface: 120000, 50503, 38000, 20505, 11508
+## Title: |cFF00CCFFClean Keys ActionBar|r
+## Notes: Makes keybind text on action bars cleaner and more readable
+## Author: Bomi
+## Version: 1.0.0
+## IconTexture: Interface\AddOns\CleanKeysActionBar\Media\logo
+## SavedVariables: CleanKeysActionBarDB
+
+CleanKeysActionBar.lua
+Settings.lua
