@@ -78,9 +78,103 @@ local function CreateSettingsPanel()
         end
     end)
     
+    -- Helper function to create offset controls
+    local function CreateOffsetControls(parent, labelText, dbKeyX, dbKeyY, anchorFrame, anchorPoint)
+        anchorPoint = anchorPoint or "BOTTOMLEFT"
+        
+        local container = CreateFrame("Frame", nil, parent)
+        container:SetPoint("TOPLEFT", anchorFrame, anchorPoint, 0, -20)
+        container:SetSize(400, 50)
+        
+        local label = container:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        label:SetPoint("TOPLEFT", 0, 0)
+        label:SetText(labelText)
+        
+        -- X Offset
+        local xLabel = container:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        xLabel:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -8)
+        xLabel:SetText("X:")
+        
+        local xValue = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+        xValue:SetPoint("LEFT", xLabel, "RIGHT", 5, 0)
+        xValue:SetWidth(30)
+        xValue:SetText(CleanKeysActionBarDB[dbKeyX] or 0)
+        
+        local xDecBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+        xDecBtn:SetPoint("LEFT", xValue, "RIGHT", 10, 0)
+        xDecBtn:SetSize(26, 22)
+        xDecBtn:SetNormalFontObject("GameFontNormalLarge")
+        xDecBtn:SetText("-")
+        xDecBtn:SetScript("OnClick", function()
+            CleanKeysActionBarDB[dbKeyX] = (CleanKeysActionBarDB[dbKeyX] or 0) - 1
+            xValue:SetText(CleanKeysActionBarDB[dbKeyX])
+            addon:UpdateAllActionButtons()
+        end)
+        
+        local xIncBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+        xIncBtn:SetPoint("LEFT", xDecBtn, "RIGHT", 3, 0)
+        xIncBtn:SetSize(26, 22)
+        xIncBtn:SetNormalFontObject("GameFontNormalLarge")
+        xIncBtn:SetText("+")
+        xIncBtn:SetScript("OnClick", function()
+            CleanKeysActionBarDB[dbKeyX] = (CleanKeysActionBarDB[dbKeyX] or 0) + 1
+            xValue:SetText(CleanKeysActionBarDB[dbKeyX])
+            addon:UpdateAllActionButtons()
+        end)
+        
+        -- Y Offset
+        local yLabel = container:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        yLabel:SetPoint("LEFT", xIncBtn, "RIGHT", 20, 0)
+        yLabel:SetText("Y:")
+        
+        local yValue = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+        yValue:SetPoint("LEFT", yLabel, "RIGHT", 5, 0)
+        yValue:SetWidth(30)
+        yValue:SetText(CleanKeysActionBarDB[dbKeyY] or 0)
+        
+        local yDecBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+        yDecBtn:SetPoint("LEFT", yValue, "RIGHT", 10, 0)
+        yDecBtn:SetSize(26, 22)
+        yDecBtn:SetNormalFontObject("GameFontNormalLarge")
+        yDecBtn:SetText("-")
+        yDecBtn:SetScript("OnClick", function()
+            CleanKeysActionBarDB[dbKeyY] = (CleanKeysActionBarDB[dbKeyY] or 0) - 1
+            yValue:SetText(CleanKeysActionBarDB[dbKeyY])
+            addon:UpdateAllActionButtons()
+        end)
+        
+        local yIncBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+        yIncBtn:SetPoint("LEFT", yDecBtn, "RIGHT", 3, 0)
+        yIncBtn:SetSize(26, 22)
+        yIncBtn:SetNormalFontObject("GameFontNormalLarge")
+        yIncBtn:SetText("+")
+        yIncBtn:SetScript("OnClick", function()
+            CleanKeysActionBarDB[dbKeyY] = (CleanKeysActionBarDB[dbKeyY] or 0) + 1
+            yValue:SetText(CleanKeysActionBarDB[dbKeyY])
+            addon:UpdateAllActionButtons()
+        end)
+        
+        return container, xValue, yValue
+    end
+    
+    -- Action Bar Hotkey Position
+    local hotkeyPosContainer, hotkeyXValue, hotkeyYValue = CreateOffsetControls(
+        panel, "Action Bar Hotkey Position:", "hotkeyOffsetX", "hotkeyOffsetY", increaseBtn
+    )
+    
+    -- Extra Action Button Position
+    local extraPosContainer, extraXValue, extraYValue = CreateOffsetControls(
+        panel, "Extra Action Button Position:", "extraOffsetX", "extraOffsetY", hotkeyPosContainer
+    )
+    
+    -- Extra Action Button info text
+    local extraInfo = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    extraInfo:SetPoint("TOPLEFT", extraPosContainer, "BOTTOMLEFT", 0, -5)
+    extraInfo:SetText("|cFF888888(Special ability button that appears during quests, dungeons, or boss fights)|r")
+    
     -- Preview section
     local previewLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    previewLabel:SetPoint("TOPLEFT", decreaseBtn, "BOTTOMLEFT", 0, -30)
+    previewLabel:SetPoint("TOPLEFT", extraInfo, "BOTTOMLEFT", 0, -20)
     previewLabel:SetText("Preview:")
     
     local previewText = panel:CreateFontString(nil, "ARTWORK")
@@ -113,6 +207,10 @@ local function CreateSettingsPanel()
         enableCheck:SetChecked(CleanKeysActionBarDB.enabled)
         fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
         previewText:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
+        hotkeyXValue:SetText(CleanKeysActionBarDB.hotkeyOffsetX)
+        hotkeyYValue:SetText(CleanKeysActionBarDB.hotkeyOffsetY)
+        extraXValue:SetText(CleanKeysActionBarDB.extraOffsetX)
+        extraYValue:SetText(CleanKeysActionBarDB.extraOffsetY)
     end)
     
     -- Register with Settings API

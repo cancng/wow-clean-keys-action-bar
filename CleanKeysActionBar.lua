@@ -14,6 +14,10 @@ addon.HOTKEY_FONT_FLAGS = "OUTLINE"
 addon.defaults = {
     enabled = true,
     fontSize = 12,
+    hotkeyOffsetX = 0,
+    hotkeyOffsetY = 0,
+    extraOffsetX = 0,
+    extraOffsetY = 0,
 }
 
 -- Key replacements table
@@ -123,6 +127,8 @@ local bindingPatterns = {
     ["MultiBarLeftButton"] = "MULTIACTIONBAR4BUTTON",
     ["PetActionButton"] = "BONUSACTIONBUTTON",
     ["StanceButton"] = "SHAPESHIFTBUTTON",
+    ["ExtraActionButton"] = "EXTRAACTIONBUTTON",
+    ["ZoneAbilityFrame"] = "EXTRAACTIONBUTTON",
 }
 
 -- Get binding key for a button
@@ -142,6 +148,13 @@ local function GetButtonBinding(button)
     return nil
 end
 
+-- Check if button is extra action button
+local function IsExtraActionButton(button)
+    local name = button:GetName()
+    if not name then return false end
+    return name:find("ExtraActionButton") or (button:GetParent() and button:GetParent():GetName() == "ZoneAbilityFrame")
+end
+
 -- Update hotkey text on a button
 local function UpdateButtonHotkey(button)
     if not CleanKeysActionBarDB or not CleanKeysActionBarDB.enabled then
@@ -159,6 +172,19 @@ local function UpdateButtonHotkey(button)
     if key then
         hotkey:SetText(CleanKey(key))
         hotkey:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
+        
+        -- Allow text to overflow outside button bounds
+        hotkey:SetWidth(0)
+        hotkey:SetWordWrap(false)
+        hotkey:SetNonSpaceWrap(false)
+        
+        -- Apply position offset
+        local isExtra = IsExtraActionButton(button)
+        local offsetX = isExtra and CleanKeysActionBarDB.extraOffsetX or CleanKeysActionBarDB.hotkeyOffsetX
+        local offsetY = isExtra and CleanKeysActionBarDB.extraOffsetY or CleanKeysActionBarDB.hotkeyOffsetY
+        
+        hotkey:ClearAllPoints()
+        hotkey:SetPoint("TOPRIGHT", button, "TOPRIGHT", -2 + offsetX, -2 + offsetY)
     end
 end
 
@@ -201,6 +227,7 @@ local function SetupHooks()
             end)
         end
     end
+    
 end
 
 -- Update all visible action buttons
@@ -245,6 +272,17 @@ function addon:UpdateAllActionButtons()
             UpdateButtonHotkey(button)
         end
     end
+    
+    -- Extra Action Button (quest/boss mechanics)
+    local extraButton = _G["ExtraActionButton1"]
+    if extraButton then
+        UpdateButtonHotkey(extraButton)
+    end
+    
+    -- Zone Ability Button
+    if ZoneAbilityFrame and ZoneAbilityFrame.SpellButton then
+        UpdateButtonHotkey(ZoneAbilityFrame.SpellButton)
+    end
 end
 
 -- Event frame
@@ -254,6 +292,8 @@ frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("UPDATE_BINDINGS")
 frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 frame:RegisterEvent("ACTIONBAR_PAGE_CHANGED")
+frame:RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
+frame:RegisterEvent("SPELLS_CHANGED")
 
 frame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
@@ -279,7 +319,8 @@ frame:SetScript("OnEvent", function(self, event, arg1)
         C_Timer.After(0.5, function() addon:UpdateAllActionButtons() end)
         C_Timer.After(2, function() addon:UpdateAllActionButtons() end)
         
-    elseif event == "UPDATE_BINDINGS" or event == "ACTIONBAR_SLOT_CHANGED" or event == "ACTIONBAR_PAGE_CHANGED" then
+    elseif event == "UPDATE_BINDINGS" or event == "ACTIONBAR_SLOT_CHANGED" or event == "ACTIONBAR_PAGE_CHANGED" 
+           or event == "UPDATE_EXTRA_ACTIONBAR" or event == "SPELLS_CHANGED" then
         C_Timer.After(0.1, function() addon:UpdateAllActionButtons() end)
     end
 end)
