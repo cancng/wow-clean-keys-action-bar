@@ -14,6 +14,7 @@ addon.HOTKEY_FONT_FLAGS = "OUTLINE"
 addon.defaults = {
     enabled = true,
     fontSize = 12,
+    fontBold = false,
     hotkeyOffsetX = 0,
     hotkeyOffsetY = 0,
     extraOffsetX = 0,
@@ -171,7 +172,13 @@ local function UpdateButtonHotkey(button)
     local key = GetButtonBinding(button)
     if key then
         hotkey:SetText(CleanKey(key))
-        hotkey:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
+        
+        -- Build font flags
+        local fontFlags = "OUTLINE"
+        if CleanKeysActionBarDB.fontBold then
+            fontFlags = "OUTLINE, THICKOUTLINE"
+        end
+        hotkey:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, fontFlags)
         
         -- Allow text to overflow outside button bounds
         hotkey:SetWidth(0)

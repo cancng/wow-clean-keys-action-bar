@@ -78,6 +78,16 @@ local function CreateSettingsPanel()
         end
     end)
     
+    -- Bold Checkbox
+    local boldCheck = CreateFrame("CheckButton", "CleanKeysBoldCheck", panel, "InterfaceOptionsCheckButtonTemplate")
+    boldCheck:SetPoint("TOPLEFT", decreaseBtn, "BOTTOMLEFT", 0, -15)
+    boldCheck.Text:SetText("Bold")
+    boldCheck:SetChecked(CleanKeysActionBarDB.fontBold)
+    boldCheck:SetScript("OnClick", function(self)
+        CleanKeysActionBarDB.fontBold = self:GetChecked()
+        addon:UpdateAllActionButtons()
+    end)
+    
     -- Helper function to create offset controls
     local function CreateOffsetControls(parent, labelText, dbKeyX, dbKeyY, anchorFrame, anchorPoint)
         anchorPoint = anchorPoint or "BOTTOMLEFT"
@@ -159,7 +169,7 @@ local function CreateSettingsPanel()
     
     -- Action Bar Hotkey Position
     local hotkeyPosContainer, hotkeyXValue, hotkeyYValue = CreateOffsetControls(
-        panel, "Action Bar Hotkey Position:", "hotkeyOffsetX", "hotkeyOffsetY", increaseBtn
+        panel, "Action Bar Hotkey Position:", "hotkeyOffsetX", "hotkeyOffsetY", boldCheck
     )
     
     -- Extra Action Button Position
@@ -206,7 +216,9 @@ local function CreateSettingsPanel()
     panel:SetScript("OnShow", function()
         enableCheck:SetChecked(CleanKeysActionBarDB.enabled)
         fontSizeValue:SetText(CleanKeysActionBarDB.fontSize)
-        previewText:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, addon.HOTKEY_FONT_FLAGS)
+        boldCheck:SetChecked(CleanKeysActionBarDB.fontBold)
+        local previewFlags = CleanKeysActionBarDB.fontBold and "OUTLINE, THICKOUTLINE" or "OUTLINE"
+        previewText:SetFont(addon.HOTKEY_FONT, CleanKeysActionBarDB.fontSize, previewFlags)
         hotkeyXValue:SetText(CleanKeysActionBarDB.hotkeyOffsetX)
         hotkeyYValue:SetText(CleanKeysActionBarDB.hotkeyOffsetY)
         extraXValue:SetText(CleanKeysActionBarDB.extraOffsetX)

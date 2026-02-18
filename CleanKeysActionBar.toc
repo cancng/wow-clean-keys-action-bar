@@ -2,7 +2,7 @@
 ## Title: |cFF00CCFFClean Keys ActionBar|r
 ## Notes: Makes keybind text on action bars cleaner and more readable
 ## Author: Bomi
-## Version: 1.0.2
+## Version: 1.0.3
 ## IconTexture: Interface\AddOns\CleanKeysActionBar\Media\logo
 ## SavedVariables: CleanKeysActionBarDB
 
